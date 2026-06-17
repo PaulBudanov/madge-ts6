@@ -36,20 +36,103 @@
   "engines": {
     "node": ">=18"
   },
-  "main": "./lib/api",
+  "main": "./lib/api.js",
+  "types": "./lib/api.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/api.d.ts",
+      "require": "./lib/api.js",
+      "default": "./lib/api.js"
+    },
+    "./api": {
+      "types": "./lib/api.d.ts",
+      "require": "./lib/api.js",
+      "default": "./lib/api.js"
+    },
+    "./lib/api": {
+      "types": "./lib/api.d.ts",
+      "require": "./lib/api.js",
+      "default": "./lib/api.js"
+    },
+    "./lib/api.js": {
+      "types": "./lib/api.d.ts",
+      "require": "./lib/api.js",
+      "default": "./lib/api.js"
+    },
+    "./lib/cyclic": {
+      "types": "./lib/cyclic.d.ts",
+      "require": "./lib/cyclic.js",
+      "default": "./lib/cyclic.js"
+    },
+    "./lib/cyclic.js": {
+      "types": "./lib/cyclic.d.ts",
+      "require": "./lib/cyclic.js",
+      "default": "./lib/cyclic.js"
+    },
+    "./lib/graph": {
+      "types": "./lib/graph.d.ts",
+      "require": "./lib/graph.js",
+      "default": "./lib/graph.js"
+    },
+    "./lib/graph.js": {
+      "types": "./lib/graph.d.ts",
+      "require": "./lib/graph.js",
+      "default": "./lib/graph.js"
+    },
+    "./lib/log": {
+      "types": "./lib/log.d.ts",
+      "require": "./lib/log.js",
+      "default": "./lib/log.js"
+    },
+    "./lib/log.js": {
+      "types": "./lib/log.d.ts",
+      "require": "./lib/log.js",
+      "default": "./lib/log.js"
+    },
+    "./lib/output": {
+      "types": "./lib/output.d.ts",
+      "require": "./lib/output.js",
+      "default": "./lib/output.js"
+    },
+    "./lib/output.js": {
+      "types": "./lib/output.d.ts",
+      "require": "./lib/output.js",
+      "default": "./lib/output.js"
+    },
+    "./lib/tree": {
+      "types": "./lib/tree.d.ts",
+      "require": "./lib/tree.js",
+      "default": "./lib/tree.js"
+    },
+    "./lib/tree.js": {
+      "types": "./lib/tree.d.ts",
+      "require": "./lib/tree.js",
+      "default": "./lib/tree.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "src"
+  ],
   "bin": {
     "madge": "./bin/cli.js"
   },
   "scripts": {
-    "test": "npm run lint && npm run mocha",
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && npm run lint && npm run mocha",
     "mocha": "mocha test/*.js",
     "watch": "mocha --watch --growl test/*.js",
-    "lint": "eslint bin/cli.js lib test/*.js",
+    "lint": "eslint bin/cli.js test/*.js",
+    "predebug": "npm run build",
     "debug": "node bin/cli.js --debug bin lib",
+    "pregenerate": "npm run build",
     "generate": "npm run generate:small && npm run generate:madge",
     "generate:small": "bin/cli.js --image /tmp/simple.svg test/cjs/circular/a.js",
     "generate:madge": "bin/cli.js --image /tmp/madge.svg bin lib",
     "test:output": "./test/output.sh",
+    "prepack": "npm run build",
     "release": "semantic-release"
   },
   "dependencies": {
@@ -76,6 +159,7 @@
   },
   "devDependencies": {
     "@aptoma/eslint-config": "^7.0.1",
+    "@types/node": "^22.0.0",
     "eslint": "^7.29.0",
     "mocha": "^9.0.1",
     "mz": "^2.7.0",

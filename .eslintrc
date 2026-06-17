@@ -1,5 +1,9 @@
 {
 	"extends": "@aptoma/eslint-config",
+	"ignorePatterns": [
+		"lib/",
+		"src/**/*.ts"
+	],
 	"parserOptions": {
 		"ecmaVersion": 9
 	},
