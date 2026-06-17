@@ -87,6 +87,8 @@ jobs:
         with:
           fetch-depth: 0
           ref: master
+          token: ${{ secrets.RELEASE_GH_TOKEN }}
+          persist-credentials: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -98,7 +100,7 @@ jobs:
       - name: Install Graphviz
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
 
-      - name: Upgrade npm for trusted publishing
+      - name: Upgrade npm
         run: npm install -g npm@latest
 
       - name: Install dependencies
@@ -118,6 +120,7 @@ jobs:
 
       - name: Release
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_GH_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
         run: npx semantic-release
