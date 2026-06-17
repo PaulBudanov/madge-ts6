@@ -1,6 +1,13 @@
 name: ci
 
-on: [pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -10,20 +17,29 @@ jobs:
         node-version: [22.x, 24.x]
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - name: ${{ matrix.os }} / Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
+          package-manager-cache: false
 
-      - name: npm install, build, and test
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends graphviz
-          npm install
-          npm run test
-          npm run debug
-          npm run generate
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
+
+      - name: Install dependencies
+        run: npm install --package-lock=false
+
+      - name: Test
+        run: npm run test
+
+      - name: Smoke-test CLI
+        run: npm run debug
+
+      - name: Generate sample graphs
+        run: npm run generate

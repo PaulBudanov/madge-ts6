@@ -1,48 +1,106 @@
 name: release
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - ci
+      - security
+    types:
+      - completed
     branches:
       - master
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
   issues: write
   pull-requests: write
   id-token: write
 
 concurrency:
-  group: release-${{ github.ref }}
+  group: release-${{ github.event.workflow_run.head_sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.workflow_run.event == 'push' &&
+        github.event.workflow_run.head_branch == 'master' &&
+        github.event.workflow_run.conclusion == 'success'
+      )
 
     steps:
+      - name: Wait for ci and security success
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          wait_for_workflow_success() {
+            local workflow_file="$1"
+
+            echo "Checking $workflow_file for commit $HEAD_SHA"
+
+            for attempt in $(seq 1 30); do
+              conclusion="$(
+                gh run list \
+                  --workflow "$workflow_file" \
+                  --branch master \
+                  --commit "$HEAD_SHA" \
+                  --json status,conclusion,headSha \
+                  --jq '[.[] | select(.status == "completed" and .headSha == env.HEAD_SHA)][0].conclusion // ""'
+              )"
+
+              if [ "$conclusion" = "success" ]; then
+                echo "$workflow_file succeeded"
+                return 0
+              fi
+
+              if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ] || [ "$conclusion" = "timed_out" ]; then
+                echo "$workflow_file finished with conclusion: $conclusion"
+                return 1
+              fi
+
+              echo "$workflow_file is not completed yet; attempt $attempt/30"
+              sleep 10
+            done
+
+            echo "$workflow_file did not complete successfully in time"
+            return 1
+          }
+
+          wait_for_workflow_success "ci.yml"
+          wait_for_workflow_success "security.yml"
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          ref: master
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: 24.x
           registry-url: https://registry.npmjs.org
-          cache: npm
-
-      - name: Install dependencies
-        run: npm install --package-lock=false
+          package-manager-cache: false
 
       - name: Install Graphviz
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
 
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@latest
+
+      - name: Install dependencies
+        run: npm install --package-lock=false
 
       - name: Test
         run: npm run test
@@ -58,6 +116,6 @@ jobs:
 
       - name: Release
         env:
-          NPM_CONFIG_IGNORE_SCRIPTS: true
           GH_TOKEN: ${{ github.token }}
+          NPM_CONFIG_IGNORE_SCRIPTS: true
         run: npx semantic-release
