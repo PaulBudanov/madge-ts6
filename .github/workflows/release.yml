@@ -24,25 +24,25 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24.x
           registry-url: https://registry.npmjs.org
           cache: npm
+
+      - name: Install dependencies
+        run: npm install --package-lock=false
 
       - name: Install Graphviz
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends graphviz
 
       - name: Upgrade npm for trusted publishing
         run: npm install -g npm@latest
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Test
         run: npm run test
@@ -59,4 +59,5 @@ jobs:
       - name: Release
         env:
           NPM_CONFIG_IGNORE_SCRIPTS: true
+          GH_TOKEN: ${{ github.token }}
         run: npx semantic-release
