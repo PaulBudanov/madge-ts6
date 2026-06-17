@@ -1,3 +1,15 @@
+## [8.0.1](https://github.com/PaulBudanov/madge-ts6/compare/v8.0.0...v8.0.1) (2026-06-17)
+
+
+### Bug Fixes
+
+* change env ([608c180](https://github.com/PaulBudanov/madge-ts6/commit/608c18086b1c890a98a805f412e1d2ae26dc882a))
+* **ci:** add npm i to deploy files ([4df03a9](https://github.com/PaulBudanov/madge-ts6/commit/4df03a9145bc045b453217eeeb2cbbc8b834c9d5))
+* **ci:** change logic ([efeb3e7](https://github.com/PaulBudanov/madge-ts6/commit/efeb3e77450ae92d284e89b156fd3a813398b98a))
+* **ci:** change release ([5710e16](https://github.com/PaulBudanov/madge-ts6/commit/5710e16b7496847905f64e764e0c61b6d21009d5))
+* **ci:** release logic ([89be0a6](https://github.com/PaulBudanov/madge-ts6/commit/89be0a674930bc3282cee2f4dd87ed12434a0819))
+* support TypeScript 6 peer dependency ([bb5ad0f](https://github.com/PaulBudanov/madge-ts6/commit/bb5ad0fcfb86b44cfc8f813feef2fd894fc8ebcd))
+
 ### Changelog
 
 All notable changes to this project will be documented in this file. Dates are displayed in UTC.
