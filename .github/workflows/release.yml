@@ -40,6 +40,7 @@ jobs:
         if: github.event_name == 'workflow_run'
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
@@ -52,11 +53,12 @@ jobs:
             for attempt in $(seq 1 30); do
               conclusion="$(
                 gh run list \
+                  --repo "$GH_REPO" \
                   --workflow "$workflow_file" \
                   --branch master \
                   --commit "$HEAD_SHA" \
                   --json status,conclusion,headSha \
-                  --jq '[.[] | select(.status == "completed" and .headSha == env.HEAD_SHA)][0].conclusion // ""'
+                  --jq '[.[] | select(.status == "completed" and .headSha == "'"$HEAD_SHA"'")][0].conclusion // ""'
               )"
 
               if [ "$conclusion" = "success" ]; then
@@ -64,7 +66,7 @@ jobs:
                 return 0
               fi
 
-              if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ] || [ "$conclusion" = "timed_out" ]; then
+              if [ "$conclusion" = "failure" ] || [ "$conclusion" = "cancelled" ] || [ "$conclusion" = "timed_out" ] || [ "$conclusion" = "startup_failure" ]; then
                 echo "$workflow_file finished with conclusion: $conclusion"
                 return 1
               fi
@@ -116,6 +118,6 @@ jobs:
 
       - name: Release
         env:
+          GITHUB_TOKEN: ${{ github.token }}
           GH_TOKEN: ${{ github.token }}
-          NPM_CONFIG_IGNORE_SCRIPTS: true
         run: npx semantic-release
