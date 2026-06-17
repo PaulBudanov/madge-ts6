@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/PaulBudanov/madge-ts6/compare/v8.0.1...v8.1.0) (2026-06-17)
+
+
+### Features
+
+* migrate library to TypeScript ([e1f4438](https://github.com/PaulBudanov/madge-ts6/commit/e1f44387c7ce29de3f8298e39cb6c3735ec05df5))
+
 ## [8.0.1](https://github.com/PaulBudanov/madge-ts6/compare/v8.0.0...v8.0.1) (2026-06-17)
 
 
